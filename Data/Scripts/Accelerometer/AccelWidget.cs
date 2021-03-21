@@ -51,8 +51,7 @@ namespace Natomic.Accelerometer
 
         private void OnHUDRegistered()
         {
-            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, new Vector2D(-0.68, -0.64), null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
-
+            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, new Vector2D(-0.64, -0.64), null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
         }
 
         public void Draw()
