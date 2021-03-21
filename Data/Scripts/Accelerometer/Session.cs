@@ -131,7 +131,7 @@ namespace Natomic.Accelerometer
                 if (tick % 10 == 0)
                 {
                     var player = MyAPIGateway.Session.Player;
-                    if (player != null)
+                    if (player != null && player.Character != null)
                     {
                         hud_display_.CurrentAccel = (float)Math.Round(CalcAccel(player.Character), 2);
                     }
