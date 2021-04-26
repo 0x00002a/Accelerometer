@@ -133,9 +133,6 @@ namespace Natomic.Accelerometer
 
         public void Draw()
         {
-            if (romiter_handle_ != null)
-            {
-            }
         }
     }
 }
