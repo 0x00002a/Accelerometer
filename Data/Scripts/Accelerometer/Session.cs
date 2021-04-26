@@ -52,9 +52,11 @@ namespace Natomic.Accelerometer
         {
             Instance = this;
 
+            hud_display_.Conf = new Config();
+
             hud_display_.Init();
 
-
+            Config.Load(hud_display_.Conf);
         }
         
 
@@ -62,6 +64,9 @@ namespace Natomic.Accelerometer
         protected override void UnloadData()
         {
             Instance = null; // important for avoiding this object to remain allocated in memory
+
+            hud_display_.Conf.Save();
+            hud_display_.Dispose();
         }
 
 
@@ -129,6 +134,7 @@ namespace Natomic.Accelerometer
         public override void SaveData()
         {
             // executed AFTER world was saved
+            hud_display_.Conf.Save();
         }
 
         public override MyObjectBuilder_SessionComponent GetObjectBuilder()

@@ -32,7 +32,7 @@ namespace Natomic.Accelerometer
     {
         private HudAPIv2 hud_handle_;
         private float current_accel_ = 0.0f;
-        private HudAPIv2.HUDMessage romiter_handle_;
+        private HudAPIv2.BoxUIContainer romiter_handle_;
         private HudAPIv2.BillBoardHUDMessage unit_lbl_;
         private StringBuilder msg_ = new StringBuilder("");
 
@@ -48,6 +48,7 @@ namespace Natomic.Accelerometer
                 if (value != last_accel_mps_)
                 {
                     current_accel_ = value;
+                    last_accel_mps_ = value;
                     msg_.Clear();
                     msg_.Append(current_accel_.ToString());
                     Relayout();
@@ -56,8 +57,16 @@ namespace Natomic.Accelerometer
 
         private void Relayout()
         {
-            var w_offset = romiter_handle_.GetTextLength().X;
-            unit_lbl_.Origin = new Vector2D(romiter_handle_.Origin.X + w_offset, unit_lbl_.Origin.Y);
+            if (unit_lbl_ != null)
+            {
+                var w_offset = romiter_handle_.GetTextLength().X;
+                unit_lbl_.Origin = new Vector2D(romiter_handle_.Origin.X + w_offset + 0.3, romiter_handle_.Origin.Y);
+
+
+                var ui_visible = current_accel_ > 0f;
+                unit_lbl_.Visible = ui_visible;
+                romiter_handle_.Visible = ui_visible;
+            }
         }
 
         public void Init()
@@ -70,7 +79,12 @@ namespace Natomic.Accelerometer
 
         private void OnHUDRegistered()
         {
-            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
+            romiter_handle_ = new HudAPIv2.BoxUIText(msg_, Conf.Position, null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
+            unit_lbl_ = new HudAPIv2.BillBoardHUDMessage(Material: IdForUnit(Conf.Unit), Origin: new Vector2D(0, 0), BillBoardColor: Color.White, Scale: 0.1);
+
+            unit_lbl_.TextureSize = 48f;
+            unit_lbl_.Visible = false;
+
             var menu_root = new HudAPIv2.MenuRootCategory("Accelerometer");
             pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_root, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
             {
@@ -105,12 +119,15 @@ namespace Natomic.Accelerometer
         {
             unit_lbl_.Material = IdForUnit(new_unit);
         }
+        public void Dispose()
+        {
+            hud_handle_.Close();
+        }
 
         public void Draw()
         {
             if (romiter_handle_ != null)
             {
-                romiter_handle_.Visible = current_accel_ > 0f; 
             }
         }
     }

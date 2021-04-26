@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Sandbox.ModAPI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using VRageMath;
+
 
 namespace Natomic.Accelerometer
 {
@@ -13,8 +15,7 @@ namespace Natomic.Accelerometer
     }
     public class Config
     {
-        private static Vector2D DEFAULT_POS = new Vector2D(-0.64, -0.64);
-
+        internal const string CONF_FNAME = "Accelerometer.cfg";
 
         [DefaultValue(AccelUnit.Metric)]
         public AccelUnit Unit;
@@ -28,6 +29,28 @@ namespace Natomic.Accelerometer
         {
             set { position_x_ = value.X; position_y_ = value.Y; }
             get { return new Vector2D(position_x_, position_y_); }
+        }
+
+
+
+        public static void Load(Config to)
+        {
+            if (!MyAPIGateway.Utilities.FileExistsInLocalStorage(CONF_FNAME, typeof(Config)))
+            {
+                MyAPIGateway.Utilities.WriteFileInLocalStorage(CONF_FNAME, typeof(Config)).Close();
+            }
+            using (var f = MyAPIGateway.Utilities.ReadFileInLocalStorage(CONF_FNAME, typeof(Config)))
+            {
+                to = MyAPIGateway.Utilities.SerializeFromXML<Config>(f.ReadToEnd());
+            }
+        }
+        public void Save()
+        {
+            using (var f = MyAPIGateway.Utilities.WriteFileInLocalStorage(CONF_FNAME, typeof(Config)))
+            {
+                f.Write(MyAPIGateway.Utilities.SerializeToXML(this));
+            }
+
         }
 
 
