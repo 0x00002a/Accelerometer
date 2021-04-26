@@ -21,29 +21,48 @@ using System.Text;
 
 using Draygo.API;
 using Sandbox.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 using BlendTypeEnum = VRageRender.MyBillboard.BlendTypeEnum;
 namespace Natomic.Accelerometer
 {
+
     class AccelWidget
     {
         private HudAPIv2 hud_handle_;
         private float current_accel_ = 0.0f;
         private HudAPIv2.HUDMessage romiter_handle_;
+        private HudAPIv2.BillBoardHUDMessage unit_lbl_;
         private StringBuilder msg_ = new StringBuilder("");
 
-        public float CurrentAccel { set { 
-                current_accel_ = value; 
-                msg_.Clear();
-                msg_.Append(current_accel_.ToString());
-                msg_.Append(" m/s^2");
+        private HudAPIv2.MenuScreenInput pos_input_;
+        private HudAPIv2.MenuItem gforce_sel_;
+        private HudAPIv2.MenuItem metric_sel_;
+
+        public Config Conf;
+
+        private float last_accel_mps_ = 0.0f;
+
+        public float CurrentAccel { set {
+                if (value != last_accel_mps_)
+                {
+                    current_accel_ = value;
+                    msg_.Clear();
+                    msg_.Append(current_accel_.ToString());
+                    Relayout();
+                }
             } }
 
+        private void Relayout()
+        {
+            var w_offset = romiter_handle_.GetTextLength().X;
+            unit_lbl_.Origin = new Vector2D(romiter_handle_.Origin.X + w_offset, unit_lbl_.Origin.Y);
+        }
 
         public void Init()
         {
-            if (!MyAPIGateway.Utilities.IsDedicated)
+            if (!(MyAPIGateway.Utilities.IsDedicated || (MyAPIGateway.Multiplayer.MultiplayerActive && MyAPIGateway.Multiplayer.IsServer)))
             {
                 hud_handle_ = new HudAPIv2(OnHUDRegistered);
             }
@@ -51,7 +70,40 @@ namespace Natomic.Accelerometer
 
         private void OnHUDRegistered()
         {
-            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, new Vector2D(-0.64, -0.64), null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
+            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true,false, null, BlendTypeEnum.PostPP);
+            var menu_root = new HudAPIv2.MenuRootCategory("Accelerometer");
+            pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_root, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
+            {
+                romiter_handle_.Origin = pos;
+                Conf.Position = pos;
+            });
+
+            var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_root, HeaderText: "Unit");
+            var gforce_sel = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () => {
+                Conf.Unit = AccelUnit.GForce;
+                OnUnitChanged(AccelUnit.GForce);
+            });
+            var metric_sel = new HudAPIv2.MenuItem(Text: "Metric", Parent: force_cat, OnClick: () => {
+                Conf.Unit = AccelUnit.Metric;
+                OnUnitChanged(AccelUnit.Metric);
+            });
+
+        }
+        private MyStringId IdForUnit(AccelUnit unit)
+        {
+            switch(unit)
+            {
+                case AccelUnit.Metric:
+                    return MyStringId.GetOrCompute("NI_Accelerometer_MetricUnit");
+                case AccelUnit.GForce:
+                    return MyStringId.GetOrCompute("NI_Accelerometer_GForceUnit");
+            }
+            throw new Exception("wut"); // Never reached but don't tell the compiler :p
+
+        }
+        private void OnUnitChanged(AccelUnit new_unit)
+        {
+            unit_lbl_.Material = IdForUnit(new_unit);
         }
 
         public void Draw()
@@ -59,7 +111,6 @@ namespace Natomic.Accelerometer
             if (romiter_handle_ != null)
             {
                 romiter_handle_.Visible = current_accel_ > 0f; 
-                romiter_handle_.Draw();
             }
         }
     }

@@ -46,58 +46,24 @@ namespace Natomic.Accelerometer
     {
         public static Session Instance; // the only way to access session comp from other classes and the only accepted static field.
         private AccelWidget hud_display_ = new AccelWidget();
-        private int tick = 0;
+        private ulong tick = 0;
 
         public override void LoadData()
         {
-            // amogst the earliest execution points, but not everything is available at this point.
-
-            // These can be used anywhere, not just in this method/class:
-            // MyAPIGateway. - main entry point for the API
-            // MyDefinitionManager.Static. - reading/editing definitions
-            // MyGamePruningStructure. - fast way of finding entities in an area
-            // MyTransparentGeometry. and MySimpleObjectDraw. - to draw sprites (from TransparentMaterials.sbc) in world (they usually live a single tick)
-            // MyVisualScriptLogicProvider. - mainly designed for VST but has its uses, use as a last resort.
-            // System.Diagnostics.Stopwatch - for measuring code execution time.
-            // ...and many more things, ask in #programming-modding in keen's discord for what you want to do to be pointed at the available things to use.
-
             Instance = this;
 
             hud_display_.Init();
+
+
         }
         
 
-        public override void BeforeStart()
-        {
-            // executed before the world starts updating
-        }
 
         protected override void UnloadData()
         {
-            // executed when world is exited to unregister events and stuff
-
             Instance = null; // important for avoiding this object to remain allocated in memory
         }
 
-        public override void HandleInput()
-        {
-            // gets called 60 times a second before all other update methods, regardless of framerate, game pause or MyUpdateOrder.
-        }
-
-        public override void UpdateBeforeSimulation()
-        {
-            // executed every tick, 60 times a second, before physics simulation and only if game is not paused.
-        }
-
-        public override void Simulate()
-        {
-            // executed every tick, 60 times a second, during physics simulation and only if game is not paused.
-            // NOTE in this example this won't actually be called because of the lack of MyUpdateOrder.Simulation argument in MySessionComponentDescriptor
-        }
-        private void UpdatePlayerCache()
-        {
-
-        }
 
         private float CalcAccel(IMyCharacter character)
         {
@@ -123,10 +89,9 @@ namespace Natomic.Accelerometer
 
         public override void UpdateAfterSimulation()
         {
-            // executed every tick, 60 times a second, after physics simulation and only if game is not paused.
             ++tick;
 
-            try // example try-catch for catching errors and notifying player, use only for non-critical code!
+            try
             {
                 if (tick % 10 == 0)
                 {
@@ -137,7 +102,7 @@ namespace Natomic.Accelerometer
                     }
                 }
             }
-            catch(Exception e) // NOTE: never use try-catch for code flow or to ignore errors! catching has a noticeable performance impact.
+            catch(Exception e) 
             {
                 Log.Error(e, e.Message);
 
