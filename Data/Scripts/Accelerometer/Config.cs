@@ -33,7 +33,7 @@ namespace Natomic.Accelerometer
 
 
 
-        public static void Load(Config to)
+        public static Config Load()
         {
             if (!MyAPIGateway.Utilities.FileExistsInLocalStorage(CONF_FNAME, typeof(Config)))
             {
@@ -41,7 +41,7 @@ namespace Natomic.Accelerometer
             }
             using (var f = MyAPIGateway.Utilities.ReadFileInLocalStorage(CONF_FNAME, typeof(Config)))
             {
-                to = MyAPIGateway.Utilities.SerializeFromXML<Config>(f.ReadToEnd());
+                return MyAPIGateway.Utilities.SerializeFromXML<Config>(f.ReadToEnd());
             }
         }
         public void Save()

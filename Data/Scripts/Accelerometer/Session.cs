@@ -52,11 +52,10 @@ namespace Natomic.Accelerometer
         {
             Instance = this;
 
-            hud_display_.Conf = new Config();
+            hud_display_.Conf = Config.Load();
 
             hud_display_.Init();
 
-            Config.Load(hud_display_.Conf);
         }
         
 
@@ -103,7 +102,7 @@ namespace Natomic.Accelerometer
                     var player = MyAPIGateway.Session.Player;
                     if (player != null && player.Character != null)
                     {
-                        hud_display_.CurrentAccel = (float)Math.Round(CalcAccel(player.Character), 2);
+                        hud_display_.CurrentAccel = CalcAccel(player.Character);
                     }
                 }
             }

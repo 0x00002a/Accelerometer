@@ -38,6 +38,7 @@ namespace Natomic.Accelerometer
         private HudAPIv2.MenuScreenInput pos_input_;
         private HudAPIv2.MenuItem gforce_sel_;
         private HudAPIv2.MenuItem metric_sel_;
+        private HudAPIv2.MenuRootCategory menu_;
 
         public Config Conf;
 
@@ -52,6 +53,16 @@ namespace Natomic.Accelerometer
                 }
             } }
 
+        private float ApplyUnitScaling(float to, AccelUnit unit)
+        {
+            if (unit == AccelUnit.GForce)
+            {
+                return to / 9.8f;
+            } else
+            {
+                return to;
+            }
+        }
         private void Relayout()
         {
             if (romiter_handle_ != null)
@@ -61,7 +72,8 @@ namespace Natomic.Accelerometer
                 var ui_visible = current_accel_ > 0f;
                 romiter_handle_.Visible = ui_visible;
 
-                msg_.Append($"{current_accel_} ");
+                var accel = (float)Math.Round(ApplyUnitScaling(current_accel_, Conf.Unit), 2);
+                msg_.Append($"{accel} ");
                 AppendUnit(msg_, Conf.Unit);
             }
         }
@@ -79,14 +91,15 @@ namespace Natomic.Accelerometer
             romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true, false, null, BlendTypeEnum.PostPP);
 
 
-            var menu_root = new HudAPIv2.MenuRootCategory("Accelerometer");
-            pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_root, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
+            menu_ = new HudAPIv2.MenuRootCategory("Accelerometer", AttachedMenu: HudAPIv2.MenuRootCategory.MenuFlag.PlayerMenu, HeaderText: "Config");
+            pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
             {
                 romiter_handle_.Origin = pos;
                 Conf.Position = pos;
-            });
+                pos_input_.Origin = pos;
+            }, InputDialogTitle: "[H]");
 
-            var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_root, HeaderText: "Unit");
+            var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_, HeaderText: "Unit");
             gforce_sel_ = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () =>
             {
                 Conf.Unit = AccelUnit.GForce;
