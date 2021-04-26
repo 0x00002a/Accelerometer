@@ -4,35 +4,14 @@
     <TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>NI_Accelerometer_MetricUnit</SubtypeId>
+        <SubtypeId>NI_Accelerometer_BG01</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <IgnoreDepth>false</IgnoreDepth>
       <SoftParticleDistanceScale>0.1</SoftParticleDistanceScale>
-      <Texture>Textures\BillboardMats\metric_unit.dds</Texture>
-      <UseAtlas>false</UseAtlas>
-      <UVOffset>
-        <X>0</X>
-        <Y>0</Y>
-      </UVOffset>
-      <UVSize>
-        <X>1</X>
-        <Y>1</Y>
-      </UVSize>
-    </TransparentMaterial>
-	<TransparentMaterial>
-      <Id>
-        <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>NI_Accelerometer_GForceUnit</SubtypeId>
-      </Id>
-      <AlphaMistingEnable>false</AlphaMistingEnable>
-      <AlphaSaturation>1</AlphaSaturation>
-      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
-      <IgnoreDepth>false</IgnoreDepth>
-      <SoftParticleDistanceScale>0.1</SoftParticleDistanceScale>
-      <Texture>Textures\BillboardMats\gforce_unit.dds</Texture>
+      <Texture>Textures\BillboardMats\accel_background_01.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>
         <X>0</X>

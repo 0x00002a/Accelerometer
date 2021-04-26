@@ -33,6 +33,7 @@ namespace Natomic.Accelerometer
         private HudAPIv2 hud_handle_;
         private float current_accel_ = 0.0f;
         private HudAPIv2.HUDMessage romiter_handle_;
+        private HudAPIv2.BillBoardHUDMessage background_;
         private StringBuilder msg_ = new StringBuilder("");
 
         private HudAPIv2.MenuScreenInput pos_input_;
@@ -89,6 +90,8 @@ namespace Natomic.Accelerometer
         private void OnHUDRegistered()
         {
             romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true, false, null, BlendTypeEnum.PostPP);
+            background_ = new HudAPIv2.BillBoardHUDMessage(Material: MyStringId.GetOrCompute("NI_Accelerometer_BG01"), Origin: Conf.Position, BillBoardColor: Color.White);
+            background_.Visible = true;
 
 
             menu_ = new HudAPIv2.MenuRootCategory("Accelerometer", AttachedMenu: HudAPIv2.MenuRootCategory.MenuFlag.PlayerMenu, HeaderText: "Config");
@@ -98,6 +101,7 @@ namespace Natomic.Accelerometer
                 Conf.Position = pos;
                 pos_input_.Origin = pos;
             }, InputDialogTitle: "[H]");
+            
 
             var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_, HeaderText: "Unit");
             gforce_sel_ = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () =>
