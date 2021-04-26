@@ -9,26 +9,20 @@ but can be used standalone.
 ## Features
 
 - Displays your angular + linear acceleration as text alongside the vanilla HUD
+- Metric (m/s²) or GForce (g) unit display
 - That's it
 
 ### Multiplayer
 
-Untested. May or may not work dependendent on whether `MyAPIGateway.Session.Player` is `null` clientside. 
-Worst case, it simply will not run. I will be testing this in the future.
-
-### Planned
-
-Stuff I would like to add to this mod if I have the time/can work out how:
-
-- A nice graphic for acceleration would be nice, rather than just a number. Similar to the vanilla velocity display
+Works in hosted and dedicated multiplayer.
 
 ## Configuration
 
-None for now
+These options can (and really should) be edited through the TextHudAPI menu. They persist across all worlds and servers and are tied to 
+each player.
 
-## Dependencies
-
-- TextHudAPI
+- `Position`: Has `X` and `Y` values. These govern the position on the screen of the display. -0.64, -0.64 is the default
+- `Unit`: Can be _GForce_ or _Metric_. Metric is default
 
 ## Reuse/Licensing
 
@@ -38,24 +32,23 @@ and I cannot and do not relicense them. Code that is not mine can be found in th
 - `Log.cs` (author Digi)
 - Anything in `TextHudAPI` (TextHudAPI mod)
 
-Please contact the respective authors for redistrubtion information about rights for those parts of the mod. In regards to my code, 
-read the license:
+Please contact the respective authors for redistrubtion information about rights for those parts of the mod. In regards to my code:
 
-```
-    Accelerometer Space Engineers mod
-    Copyright (C) 2021 Natasha England-Elbro
+This mod is GPLv3. That means you can reupload it or any mod that contains it _as long as_ you:
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+- Keep all existing license notices intact
+- Credit me
+- List your changes (easiest way is with git and github repo)
+- Make _all_ the source code of the relevent mod avaliable freely and publically with no restrictions placed on its access
+- Make your mod GPLv3 as well
+- Give me your first born child
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+(ok that last one isn't actually legally binding)
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-```
+If in doubt, ask me in comments or the Keen discord (\@Natomic). 
+Full license is avaliable [here](https://github.com/0x00002a/Accelerometer/blob/74aad99d203f819d7097298f451a4efc131f2dea/LICENSE). I reserve the right to ask 
+for your mod to be yeeted if you have reused my mod without obeying the license.
 
+## Source
+
+Source code for this mod can be found [here](https://github.com/0x00002a/Accelerometer)
