@@ -45,16 +45,22 @@ namespace Natomic.Accelerometer
     public class Session: MySessionComponentBase
     {
         public static Session Instance; // the only way to access session comp from other classes and the only accepted static field.
-        private AccelWidget hud_display_ = new AccelWidget();
+        private AccelWidget hud_display_;
         private ulong tick = 0;
 
         public override void LoadData()
         {
             Instance = this;
 
-            hud_display_.Conf = Config.Load();
-
-            hud_display_.Init();
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                hud_display_ = new AccelWidget();
+                hud_display_.Conf = Config.Load();
+                hud_display_.Init();
+            } else
+            {
+                UpdateOrder = MyUpdateOrder.NoUpdate;
+            }
 
         }
         
@@ -64,8 +70,11 @@ namespace Natomic.Accelerometer
         {
             Instance = null; // important for avoiding this object to remain allocated in memory
 
-            hud_display_.Conf.Save();
-            hud_display_.Dispose();
+            if (hud_display_ != null)
+            {
+                hud_display_.Conf.Save();
+                hud_display_.Dispose();
+            }
         }
 
 
@@ -109,43 +118,15 @@ namespace Natomic.Accelerometer
             catch(Exception e) 
             {
                 Log.Error(e, e.Message);
-
             }
         }
 
-        public override void Draw()
-        {
-            // gets called 60 times a second after all other update methods, regardless of framerate, game pause or MyUpdateOrder.
-            // NOTE: this is the only place where the camera matrix (MyAPIGateway.Session.Camera.WorldMatrix) is accurate, everywhere else it's 1 frame behind.
-            try
-            {
-                if (hud_display_ != null)
-                {
-                    hud_display_.Draw();
-                }
-            } catch(Exception e)
-            {
-                Log.Error($"Failed to draw: {e.Message}", e.Message);
-
-            }
-        }
 
         public override void SaveData()
         {
             // executed AFTER world was saved
-            hud_display_.Conf.Save();
+            hud_display_?.Conf.Save();
         }
-
-        public override MyObjectBuilder_SessionComponent GetObjectBuilder()
-        {
-            // executed during world save, most likely before entities.
-
-            return base.GetObjectBuilder(); // leave as-is.
-        }
-
-        public override void UpdatingStopped()
-        {
-            // executed when game is paused
-        }
+        
     }
 }

@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Digi;
 using Draygo.API;
 using Sandbox.ModAPI;
 using VRage.Utils;
@@ -80,36 +80,38 @@ namespace Natomic.Accelerometer
 
         public void Init()
         {
-            if (!(MyAPIGateway.Utilities.IsDedicated || (MyAPIGateway.Multiplayer.MultiplayerActive && MyAPIGateway.Multiplayer.IsServer)))
-            {
-                hud_handle_ = new HudAPIv2(OnHUDRegistered);
-            }
+            hud_handle_ = new HudAPIv2(OnHUDRegistered);
         }
 
         private void OnHUDRegistered()
         {
-            romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true, false, null, BlendTypeEnum.PostPP);
-
-
-            menu_ = new HudAPIv2.MenuRootCategory("Accelerometer", AttachedMenu: HudAPIv2.MenuRootCategory.MenuFlag.PlayerMenu, HeaderText: "Config");
-            pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
+            try
             {
-                romiter_handle_.Origin = pos;
-                Conf.Position = pos;
-                pos_input_.Origin = pos;
-            }, InputDialogTitle: "[H]");
-            
+                romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true, false, null, BlendTypeEnum.PostPP);
 
-            var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_, HeaderText: "Unit");
-            gforce_sel_ = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () =>
-            {
-                Conf.Unit = AccelUnit.GForce;
-            });
-            metric_sel_ = new HudAPIv2.MenuItem(Text: "Metric", Parent: force_cat, OnClick: () =>
-            {
-                Conf.Unit = AccelUnit.Metric;
-            });
 
+                menu_ = new HudAPIv2.MenuRootCategory("Accelerometer", AttachedMenu: HudAPIv2.MenuRootCategory.MenuFlag.PlayerMenu, HeaderText: "Config");
+                pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: pos =>
+                {
+                    romiter_handle_.Origin = pos;
+                    Conf.Position = pos;
+                    pos_input_.Origin = pos;
+                }, InputDialogTitle: "[042.99 m/s²]");
+
+
+                var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_, HeaderText: "Unit");
+                gforce_sel_ = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () =>
+                {
+                    Conf.Unit = AccelUnit.GForce;
+                });
+                metric_sel_ = new HudAPIv2.MenuItem(Text: "Metric", Parent: force_cat, OnClick: () =>
+                {
+                    Conf.Unit = AccelUnit.Metric;
+                });
+            } catch(Exception e)
+            {
+                Log.Error(e, $"Error in hud register: {e.Message}");
+            }
 
         }
         
@@ -131,8 +133,5 @@ namespace Natomic.Accelerometer
             hud_handle_.Close();
         }
 
-        public void Draw()
-        {
-        }
     }
 }
