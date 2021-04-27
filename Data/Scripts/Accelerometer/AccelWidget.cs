@@ -45,6 +45,10 @@ namespace Natomic.Accelerometer
             // keen.kill()
             return new Vector2D(1 + (keen.X / 2 - 0.5), 1 - (keen.Y / 2 + 0.5));
         }
+        public static Vector2D KeenSizeToSane(Vector2D keen)
+        {
+            return new Vector2D(keen.X / 2, -1 * (keen.Y / 2));
+        }
     }
     class AccelWidget
     {
@@ -59,6 +63,8 @@ namespace Natomic.Accelerometer
         private HudAPIv2.MenuRootCategory menu_;
 
         public Config Conf;
+
+        private Vector2D saved_pos_;
 
         private float last_accel_mps_ = 0.0f;
 
@@ -81,6 +87,19 @@ namespace Natomic.Accelerometer
                 return to;
             }
         }
+        private void BuildAccelMsg(StringBuilder into, AccelUnit unit)
+        {
+            into.Append(ApplyUnitScaling(current_accel_, unit).ToString("000.00 "));
+            AppendUnit(into, unit);
+        }
+        private void ResetPosToSaved()
+        {
+            ChangePos(saved_pos_);
+        }
+        private void SavePos()
+        {
+            saved_pos_ = romiter_handle_.Origin;
+        }
         private void Relayout()
         {
             if (romiter_handle_ != null)
@@ -89,10 +108,8 @@ namespace Natomic.Accelerometer
 
                 var ui_visible = current_accel_ > 0f;
                 romiter_handle_.Visible = ui_visible;
+                BuildAccelMsg(msg_, Conf.Unit);
 
-                var accel = (float)Math.Round(ApplyUnitScaling(current_accel_, Conf.Unit), 2);
-                msg_.Append($"{accel} ");
-                AppendUnit(msg_, Conf.Unit);
             }
         }
 
@@ -103,11 +120,9 @@ namespace Natomic.Accelerometer
 
         private void ChangePos(Vector2D pos)
         {
-            var sane_pos = CoordHelper.KeenCoordToSane(pos);
-
-            var bounds = CoordHelper.KeenCoordToSane(romiter_handle_.GetTextLength());
-            var txt_pos = new Vector2D(sane_pos.X + bounds.X / 2, sane_pos.Y + bounds.Y / 2);
-            romiter_handle_.Origin = CoordHelper.SaneToKeenCoord(txt_pos);
+            romiter_handle_.Origin = pos;
+            var len = romiter_handle_.GetTextLength();
+            romiter_handle_.Offset = new Vector2D(-len.X / 2, 0);
 
             Conf.Position = pos;
             pos_input_.Origin = pos;
@@ -117,12 +132,21 @@ namespace Natomic.Accelerometer
         {
             try
             {
-                romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Conf.Position, null, -1, 1.2, true, false, null, BlendTypeEnum.PostPP);
+                romiter_handle_ = new HudAPIv2.HUDMessage(msg_, Origin: Vector2D.Zero, Scale: 1.2, Blend: BlendTypeEnum.PostPP);
 
 
                 menu_ = new HudAPIv2.MenuRootCategory("Accelerometer", AttachedMenu: HudAPIv2.MenuRootCategory.MenuFlag.PlayerMenu, HeaderText: "Config");
-                pos_input_ = new HudAPIv2.MenuScreenInput(Text: "Position", Parent: menu_, Origin: Conf.Position, Size: romiter_handle_.GetTextLength(), OnSubmit: ChangePos
-                , InputDialogTitle: "X");
+                pos_input_ = new HudAPIv2.MenuScreenInput(
+                    Text: "Position",
+                    Parent: menu_,
+                    Origin: Conf.Position,
+                    Size: romiter_handle_.GetTextLength(),
+                    OnSubmit: ChangePos,
+                    InputDialogTitle: "X",
+                    OnSelect: () => { romiter_handle_.Visible = true; SavePos(); }, 
+                    Update: pos => { romiter_handle_.Visible = true; ChangePos(pos); }, 
+                    Cancel: ResetPosToSaved
+                    );
 
 
                 var force_cat = new HudAPIv2.MenuSubCategory(Text: "Unit", Parent: menu_, HeaderText: "Unit");
@@ -134,6 +158,10 @@ namespace Natomic.Accelerometer
                 {
                     Conf.Unit = AccelUnit.Metric;
                 });
+
+
+                BuildAccelMsg(msg_, Conf.Unit);
+                ChangePos(Conf.Position);
             } catch(Exception e)
             {
                 Log.Error(e, $"Error in hud register: {e.Message}");
