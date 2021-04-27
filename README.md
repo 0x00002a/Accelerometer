@@ -14,15 +14,16 @@ but can be used standalone.
 
 ### Multiplayer
 
-Works in hosted and dedicated multiplayer.
+Tested in hosted and dedicated multiplayer.
 
 ## Configuration
 
-These options can (and really should) be edited through the TextHudAPI menu. They persist across all worlds and servers and are tied to 
+These options can be edited through the TextHudAPI menu. They persist across all worlds and servers and are tied to 
 each player.
 
 - `Position`: Has `X` and `Y` values. These govern the position on the screen of the display. -0.64, -0.64 is the default
 - `Unit`: Can be _GForce_ or _Metric_. Metric is default
+- `Autohide`: Whether to hide the display when acceleration is 0. Defaults to true
 
 ## Reuse/Licensing
 
