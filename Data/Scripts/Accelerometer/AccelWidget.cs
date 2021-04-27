@@ -50,6 +50,23 @@ namespace Natomic.Accelerometer
             return new Vector2D(keen.X / 2, -1 * (keen.Y / 2));
         }
     }
+
+    class BooleanMenuItem
+    {
+        public event Action<bool> ValueChanged;
+
+        public BooleanMenuItem(string Text, HudAPIv2.MenuCategoryBase Parent, Action<bool> ValueChanged)
+        {
+            this.ValueChanged = ValueChanged;
+            cat_ = new HudAPIv2.MenuSubCategory(Text: Text, Parent: Parent, HeaderText: "Boolean");
+
+            new HudAPIv2.MenuItem(Text: "True", Parent: cat_, OnClick: () =>  ValueChanged(true));
+            new HudAPIv2.MenuItem(Text: "False", Parent: cat_, OnClick: () => ValueChanged(false));
+        }
+
+        private HudAPIv2.MenuSubCategory cat_;
+    }
+
     class AccelWidget
     {
         private HudAPIv2 hud_handle_;
@@ -106,7 +123,7 @@ namespace Natomic.Accelerometer
             {
                 msg_.Clear();
 
-                var ui_visible = current_accel_ > 0f;
+                var ui_visible = !Conf.Autohide || current_accel_ > 0f;
                 romiter_handle_.Visible = ui_visible;
                 BuildAccelMsg(msg_, Conf.Unit);
 
@@ -158,6 +175,8 @@ namespace Natomic.Accelerometer
                 {
                     Conf.Unit = AccelUnit.Metric;
                 });
+
+                new BooleanMenuItem(Text: "Autohide", Parent: menu_, ValueChanged: val => Conf.Autohide = val);
 
 
                 BuildAccelMsg(msg_, Conf.Unit);

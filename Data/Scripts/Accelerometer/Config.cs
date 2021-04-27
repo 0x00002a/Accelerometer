@@ -38,6 +38,9 @@ namespace Natomic.Accelerometer
         [DefaultValue(AccelUnit.Metric)]
         public AccelUnit Unit;
 
+        [DefaultValue(true)]
+        public bool Autohide;
+
         // C# is very limited when it comes to user-defined types apparently 
         internal double position_x_ = -0.64;
 
