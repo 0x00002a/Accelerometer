@@ -90,7 +90,7 @@ namespace Natomic.Accelerometer
                 {
                     current_accel_ = value;
                     last_accel_mps_ = value;
-                    Relayout();
+                    RefreshDrawState();
                 }
             } }
 
@@ -117,16 +117,25 @@ namespace Natomic.Accelerometer
         {
             saved_pos_ = romiter_handle_.Origin;
         }
-        private void Relayout()
+        private void UpdateVisible()
         {
             if (romiter_handle_ != null)
             {
-                msg_.Clear();
-
                 var ui_visible = !Conf.Autohide || current_accel_ > 0f;
                 romiter_handle_.Visible = ui_visible;
-                BuildAccelMsg(msg_, Conf.Unit);
-
+            }
+        }
+        private void UpdateUnit()
+        {
+            msg_.Clear();
+            BuildAccelMsg(msg_, Conf.Unit);
+        }
+        private void RefreshDrawState()
+        {
+            if (romiter_handle_ != null)
+            {
+                UpdateUnit();
+                UpdateVisible();
             }
         }
 
@@ -170,17 +179,19 @@ namespace Natomic.Accelerometer
                 gforce_sel_ = new HudAPIv2.MenuItem(Text: "GForce", Parent: force_cat, OnClick: () =>
                 {
                     Conf.Unit = AccelUnit.GForce;
+                    UpdateUnit();
                 });
                 metric_sel_ = new HudAPIv2.MenuItem(Text: "Metric", Parent: force_cat, OnClick: () =>
                 {
                     Conf.Unit = AccelUnit.Metric;
+                    UpdateUnit();
                 });
 
-                new BooleanMenuItem(Text: "Autohide", Parent: menu_, ValueChanged: val => Conf.Autohide = val);
+                new BooleanMenuItem(Text: "Autohide", Parent: menu_, ValueChanged: val => { Conf.Autohide = val; UpdateVisible(); });
 
-
-                BuildAccelMsg(msg_, Conf.Unit);
+                RefreshDrawState();
                 ChangePos(Conf.Position);
+
             } catch(Exception e)
             {
                 Log.Error(e, $"Error in hud register: {e.Message}");
@@ -196,7 +207,7 @@ namespace Natomic.Accelerometer
                     to.Append("m/s²");
                     break;
                 case AccelUnit.GForce:
-                    to.Append("g");
+                    to.Append("g   ");
                     break;
             }
 
