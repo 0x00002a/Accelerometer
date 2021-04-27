@@ -62,7 +62,17 @@ namespace Natomic.Accelerometer
             }
             using (var f = MyAPIGateway.Utilities.ReadFileInLocalStorage(CONF_FNAME, typeof(Config)))
             {
-                return MyAPIGateway.Utilities.SerializeFromXML<Config>(f.ReadToEnd());
+                var rs = MyAPIGateway.Utilities.SerializeFromXML<Config>(f.ReadToEnd());
+                if (rs == null)
+                {
+                    // Failed to parse 
+                    rs = new Config
+                    {
+                        Unit = AccelUnit.Metric,
+                        Autohide = true,
+                    };
+                }
+                return rs;
             }
         }
         public void Save()
