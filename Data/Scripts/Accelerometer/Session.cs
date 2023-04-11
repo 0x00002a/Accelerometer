@@ -50,30 +50,44 @@ namespace Natomic.Accelerometer
 
         public override void LoadData()
         {
-            Instance = this;
+            try
+            {
+                Instance = this;
 
-            if (!MyAPIGateway.Utilities.IsDedicated)
-            {
-                hud_display_ = new AccelWidget();
-                hud_display_.Conf = Config.Load();
-                hud_display_.Init();
-            } else
-            {
-                UpdateOrder = MyUpdateOrder.NoUpdate;
+                if (!MyAPIGateway.Utilities.IsDedicated)
+                {
+                    hud_display_ = new AccelWidget();
+                    hud_display_.Conf = Config.Load();
+                    hud_display_.Init();
+                }
+                else
+                {
+                    UpdateOrder = MyUpdateOrder.NoUpdate;
+                }
             }
-
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
         
 
 
         protected override void UnloadData()
         {
-            Instance = null; // important for avoiding this object to remain allocated in memory
-
-            if (hud_display_ != null)
+            try
             {
-                hud_display_.Conf.Save();
-                hud_display_.Dispose();
+                Instance = null; // important for avoiding this object to remain allocated in memory
+
+                if (hud_display_ != null)
+                {
+                    hud_display_.Conf.Save();
+                    hud_display_.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
             }
         }
 
@@ -103,6 +117,10 @@ namespace Natomic.Accelerometer
         public override void UpdateAfterSimulation()
         {
             ++tick;
+            if (Instance == null)
+            {
+                return; // We failed to initialise
+            }
 
             try
             {
@@ -124,8 +142,15 @@ namespace Natomic.Accelerometer
 
         public override void SaveData()
         {
-            // executed AFTER world was saved
-            hud_display_?.Conf.Save();
+            try
+            {
+                // executed AFTER world was saved
+                hud_display_?.Conf.Save();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
         
     }

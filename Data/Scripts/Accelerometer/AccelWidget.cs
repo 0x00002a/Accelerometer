@@ -92,7 +92,8 @@ namespace Natomic.Accelerometer
                     last_accel_mps_ = value;
                     RefreshDrawState();
                 }
-            } }
+            } 
+        }
 
         private float ApplyUnitScaling(float to, AccelUnit unit)
         {
